@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - QuarkNet</title>
+    <link rel="stylesheet" href="../src/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-atom"></i>
+                <h1>QuarkNet</h1>
+            </div>
+            <p class="tagline">Welcome back to clean social media</p>
+        </header>
+        
+        <main class="main-content">
+            <div class="form-container">
+                <h2>Sign In</h2>
+                <p class="text-center mb-3" style="color: var(--text-secondary);">
+                    Enter your credentials to access your account
+                </p>
+                
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required 
+                               placeholder="Enter your email" 
+                               value="alex@quarknet.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" required 
+                                   placeholder="Enter your password"
+                                   value="password123">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe" name="rememberMe">
+                            <span>Remember me</span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        Don't have an account?
+                    </p>
+                    <a href="signup.html" class="btn btn-secondary">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </a>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="index.html" style="color: var(--text-light); text-decoration: none;">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../src/js/main.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                window.quarknet.showErrorMessage('Please fill in all fields');
+                return;
+            }
+            
+            // Show loading state
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+            btn.disabled = true;
+
+            const result = await window.quarknet.login(email, password);
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+
+            if (result.success) {
+                window.quarknet.showSuccessMessage('Login successful! Welcome back!');
+                setTimeout(() => {
+                    window.location.href = 'feed.html';
+                }, 1000);
+            } else {
+                window.quarknet.showErrorMessage(result.message);
+            }
+        });
+        
+        // Demo credentials info
+        document.addEventListener('DOMContentLoaded', function() {
+            const demoInfo = document.createElement('div');
+            demoInfo.style.cssText = `
+                background: var(--bg-tertiary);
+                border: 1px solid var(--border-color);
+                border-radius: var(--border-radius);
+                padding: 1rem;
+                margin-top: 1rem;
+                font-size: 0.875rem;
+            `;
+            demoInfo.innerHTML = `
+                <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                    <i class="fas fa-info-circle"></i> Demo Credentials
+                </h4>
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    <strong>Email:</strong> alex@quarknet.com<br>
+                    <strong>Password:</strong> password123
+                </p>
+                <p style="color: var(--text-light); font-size: 0.8rem;">
+                    Or create a new account using the signup form.
+                </p>
+            `;
+            
+            document.querySelector('.form-container').appendChild(demoInfo);
+        });
+    </script>
+</body>
+</html>

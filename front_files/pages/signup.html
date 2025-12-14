@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - QuarkNet</title>
+    <link rel="stylesheet" href="../src/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-atom"></i>
+                <h1>QuarkNet</h1>
+            </div>
+            <p class="tagline">Join the clean social media revolution</p>
+        </header>
+        
+        <main class="main-content">
+            <div class="form-container">
+                <h2>Create Account</h2>
+                <p class="text-center mb-3" style="color: var(--text-secondary);">
+                    Start your journey with quality content and meaningful connections
+                </p>
+                
+                <form id="signupForm" class="signup-form">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" required 
+                               placeholder="Enter your full name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required 
+                               placeholder="Choose a unique username"
+                               pattern="[a-zA-Z0-9_]+"
+                               title="Username can only contain letters, numbers, and underscores">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required 
+                               placeholder="Enter your email address">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" required 
+                                   placeholder="Create a strong password"
+                                   minlength="6">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="confirmPassword" name="confirmPassword" required 
+                                   placeholder="Confirm your password">
+                            <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">Bio (Optional)</label>
+                        <textarea id="bio" name="bio" 
+                                  placeholder="Tell us about yourself..."
+                                  rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <span style="font-size: 0.875rem; color: var(--text-secondary);">
+                                I agree to the <a href="#" style="color: var(--primary-color);">Terms of Service</a> 
+                                and <a href="#" style="color: var(--primary-color);">Privacy Policy</a>
+                            </span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        Already have an account?
+                    </p>
+                    <a href="login.html" class="btn btn-secondary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </a>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="index.html" style="color: var(--text-light); text-decoration: none;">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../src/js/main.js"></script>
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                fullName: document.getElementById('fullName').value.trim(),
+                username: document.getElementById('username').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                bio: document.getElementById('bio').value.trim()
+            };
+            
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const terms = document.getElementById('terms').checked;
+            
+            // Validation
+            if (!formData.fullName || !formData.username || !formData.email || !formData.password) {
+                window.quarknet.showErrorMessage('Please fill in all required fields');
+                return;
+            }
+            
+            if (formData.password !== confirmPassword) {
+                window.quarknet.showErrorMessage('Passwords do not match');
+                return;
+            }
+            
+            if (formData.password.length < 6) {
+                window.quarknet.showErrorMessage('Password must be at least 6 characters long');
+                return;
+            }
+            
+            if (!terms) {
+                window.quarknet.showErrorMessage('Please accept the Terms of Service and Privacy Policy');
+                return;
+            }
+            
+            // Username validation
+            if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+                window.quarknet.showErrorMessage('Username can only contain letters, numbers, and underscores');
+                return;
+            }
+            
+            // Show loading state
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+            btn.disabled = true;
+
+            const result = await window.quarknet.signup(formData);
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            if (result.success) {
+                window.quarknet.showSuccessMessage('Account created successfully! Welcome to QuarkNet!');
+                setTimeout(() => {
+                    window.location.href = 'feed.html';
+                }, 1500);
+            } else {
+                window.quarknet.showErrorMessage(result.message);
+            }
+        });
+        
+        // Real-time password confirmation validation
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                this.style.borderColor = 'var(--danger-color)';
+            } else {
+                this.style.borderColor = 'var(--border-color)';
+            }
+        });
+        
+        // Username availability check (simulated)
+        document.getElementById('username').addEventListener('blur', function() {
+            const username = this.value.trim();
+            if (username) {
+                // Simulate checking username availability
+                const existingUser = window.quarknet.users.find(u => u.username === username);
+                if (existingUser) {
+                    this.style.borderColor = 'var(--danger-color)';
+                    window.quarknet.showErrorMessage('Username is already taken');
+                } else {
+                    this.style.borderColor = 'var(--accent-color)';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
